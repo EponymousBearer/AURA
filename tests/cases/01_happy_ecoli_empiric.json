@@ -1,0 +1,22 @@
+{
+  "name": "happy_ecoli_empiric",
+  "expected": { "status": "recommendation_ready" },
+  "request": {
+    "report_text": "Specimen Desc. : BLOOD C/S\\nResult :\\n1: E. COLI\\nANTIBIOTIC SUSCEPTIBILITY\\n1 PIPERACILLIN-TAZOBACTAM S\\n2 AMIKACIN S\\n3 AMPICILLIN R\\n",
+    "specimen_hint": null,
+    "patient": {
+      "age_years": 56,
+      "sex": "female",
+      "syndrome": "Empiric sepsis/bacteremia",
+      "severity": "stable",
+      "egfr_ml_min": 80,
+      "renal_bucket": "normal",
+      "beta_lactam_allergy": false,
+      "other_allergies": [],
+      "pregnancy": false,
+      "hepatic_impairment": false,
+      "interactions": []
+    },
+    "debug": true
+  }
+}

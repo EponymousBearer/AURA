@@ -1,0 +1,21 @@
+Specimen Desc. : BLOOD C/S
+
+Result :
+
+1: E. COLI
+
+SENSITIVITIES OF CARBAPENEMS WILL BE AVAILABLE ON REQUEST.
+SINGLE BLOOD CULTURE HAS VERY LOW SENSITIVITY AND SPECIFICITY.
+
+ANTIBIOTIC SUSCEPTIBILITY
+
+1    AMIKACIN                           S
+2    AMOXACILLIN + CLAVULANIC ACID      S
+3    AMPICILLIN                         R
+4    CIPROFLOXACIN                      R
+5    GENTAMICIN                         S
+6    CEFTRIAXONE                        R
+7    TOBRAMYCIN                         S
+8    TETRACYCLINE                       S
+9    CO-TRIMOXAZOLE                     S
+10   PIPERACILLIN-TAZOBACTAM            S

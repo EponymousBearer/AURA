@@ -1,0 +1,18 @@
+{
+  "name": "happy_esbl_meropenem",
+  "expected": { "status": "recommendation_ready" },
+  "request": {
+    "report_text": "Specimen Desc. : BLOOD C/S\\nResult :\\n1: E. COLI\\nNOTE: ESBL suspected\\nANTIBIOTIC SUSCEPTIBILITY\\n1 MEROPENEM S\\n2 PIPERACILLIN-TAZOBACTAM R\\n3 CEFTRIAXONE R\\n",
+    "specimen_hint": null,
+    "patient": {
+      "age_years": 62,
+      "sex": "female",
+      "syndrome": "ESBL/complicated GN bacteremia",
+      "severity": "sepsis",
+      "egfr_ml_min": 55,
+      "renal_bucket": "moderate",
+      "beta_lactam_allergy": false
+    },
+    "debug": true
+  }
+}

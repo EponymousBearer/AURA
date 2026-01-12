@@ -1,0 +1,18 @@
+{
+  "name": "no_index_ast_rows",
+  "expected": { "status": "recommendation_ready" },
+  "request": {
+    "report_text": "Specimen Desc. : BLOOD C/S\\nResult :\\n1: E. COLI\\nANTIBIOTIC SUSCEPTIBILITY\\nAMIKACIN S\\nPIPERACILLIN-TAZOBACTAM S\\nAMPICILLIN R\\n",
+    "specimen_hint": null,
+    "patient": {
+      "age_years": 44,
+      "sex": "male",
+      "syndrome": "Empiric sepsis/bacteremia",
+      "severity": "stable",
+      "egfr_ml_min": 110,
+      "renal_bucket": "normal",
+      "beta_lactam_allergy": false
+    },
+    "debug": true
+  }
+}
