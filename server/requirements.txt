@@ -1,0 +1,14 @@
+langgraph
+langchain
+langchain-openai
+langchain-community
+langsmith
+python-dotenv
+fastapi
+uvicorn
+pydantic
+openai
+pandas
+scikit-learn
+joblib
+pytest

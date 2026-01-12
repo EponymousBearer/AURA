@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()  # Load environment variables from .env file
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 
 from api.schemas import CultureReportRequest, AnalyzeResponse
@@ -15,6 +16,14 @@ from api.schemas import (
 
 
 app = FastAPI(title="AURA", version="1.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # For development; refine for production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 GRAPH = build_graph()
 
