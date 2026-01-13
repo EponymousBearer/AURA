@@ -4,6 +4,8 @@ from __future__ import annotations
 import os
 from langgraph.graph import StateGraph, END
 
+from api.settings import GROQ_API_KEY
+
 from agent.state import GraphState
 from agent.nodes.extract import extract_node
 from agent.nodes.validate import validate_node
@@ -27,11 +29,11 @@ def build_graph():
     g.add_node("dose", dose_node)
     g.add_node("respond", respond_node)
 
-    # If pytest is running OR OpenAI key missing -> skip explain node
+    # If pytest is running OR Groq key missing -> skip explain node
     in_pytest = bool(os.getenv("PYTEST_CURRENT_TEST"))
-    has_openai_key = bool(os.getenv("OPENAI_API_KEY"))
+    has_groq_key = bool(GROQ_API_KEY)
 
-    use_explain = (not in_pytest) and has_openai_key
+    use_explain = (not in_pytest) and has_groq_key
 
     if use_explain:
         g.add_node("explain", explain_node)
