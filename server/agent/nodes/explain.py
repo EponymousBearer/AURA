@@ -3,13 +3,13 @@ from __future__ import annotations
 from typing import Dict, Any
 
 from agent.state import GraphState
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 from api.schemas import RecommendationPackage
 
 
-llm = ChatOpenAI(
-    model="gpt-4o-mini",  # fast, cheap, reliable
-    temperature=0.2
+llm = ChatGroq(
+    model="llama-3.1-8b-instant",  # Groq hosted Llama 3.1 8B
+    temperature=0.2,
 )
 
 EXPLANATION_SYSTEM_PROMPT = """You are a medical expert specializing in antibiotic recommendations and resistance patterns.
