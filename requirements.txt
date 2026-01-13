@@ -1,0 +1,18 @@
+# pip install langgraph langchain langsmith python-dotenv
+# pip install fastapi uvicorn pydantic
+# pip install openai langchain-openai
+# pip install pandas scikit-learn joblib
+# pip install pytest
+langgraph
+langchain
+langchain-openai
+langsmith
+python-dotenv
+fastapi
+uvicorn
+pydantic
+openai
+pandas
+scikit-learn
+joblib
+pytest
