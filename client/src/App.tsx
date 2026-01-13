@@ -23,13 +23,24 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+const SAMPLE_REPORT = `Specimen Desc. : BLOOD C/S
+Result :
+1: E. COLI
+ANTIBIOTIC SUSCEPTIBILITY
+1   PIPERACILLIN-TAZOBACTAM   S
+2   AMIKACIN                  S
+3   GENTAMICIN                S
+`
+
 export default function App() {
   const [health, setHealth] = useState<{ ok: boolean } | null>(null)
   const [loadingHealth, setLoadingHealth] = useState(true)
   const [analyzing, setAnalyzing] = useState(false)
   const [result, setResult] = useState<any>(null)
+  const [showModal, setShowModal] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
+  const [reportText, setReportText] = useState(SAMPLE_REPORT)
   const [file, setFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -126,33 +137,34 @@ export default function App() {
   }
 
   const handleAnalyze = async () => {
-    if (!file) {
-      setError("Please upload a microbiology culture report.")
-      return
-    }
+    // if (!file) {
+    //   setError("Please upload a microbiology culture report.")
+    //   return
+    // }
     setError(null)
     setAnalyzing(true)
     setResult(null)
 
     try {
-      let text = ""
-      if (file.type === "text/plain" || file.name.endsWith(".txt")) {
-        const reader = new FileReader()
-        text = await new Promise<string>((resolve, reject) => {
-          reader.onload = (e) => resolve(e.target?.result as string || "")
-          reader.onerror = reject
-          reader.readAsText(file)
-        })
-      } else {
-        // Perform OCR for images/PDFs
-        text = await performOCR(file) || ""
-        if (!text) {
-          throw new Error("Could not extract text from the file. Please ensure it's a clear document.")
-        }
-      }
+      // let text = ""
+      // if (file.type === "text/plain" || file.name.endsWith(".txt")) {
+      //   const reader = new FileReader()
+      //   text = await new Promise<string>((resolve, reject) => {
+      //     reader.onload = (e) => resolve(e.target?.result as string || "")
+      //     reader.onerror = reject
+      //     reader.readAsText(file)
+      //   })
+      // } else {
+      //   // Perform OCR for images/PDFs
+      //   text = await performOCR(file) || ""
+      //   if (!text) {
+      //     throw new Error("Could not extract text from the file. Please ensure it's a clear document.")
+      //   }
+      // }
+      // const text = SAMPLE_REPORT
 
       const payload = {
-        report_text: text,
+        report_text: reportText,
         specimen_hint: null,
         patient: formData.patient,
         debug: true
@@ -180,15 +192,10 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FBFBFD] text-black font-sans selection:bg-emerald-100 antialiased overflow-x-hidden">
-      {/* Background Soft Glow */}
-      <div className="fixed inset-0 pointer-events-none opacity-30">
-        <div className="absolute top-[-5%] left-[-5%] w-[30%] h-[30%] bg-[#E8F5E9] blur-[100px] rounded-full"></div>
-        <div className="absolute bottom-[-5%] right-[-5%] w-[30%] h-[30%] bg-[#E3F2FD] blur-[100px] rounded-full"></div>
-      </div>
+    <div className="min-h-screen bg-slate-50 text-black font-sans selection:bg-emerald-100 antialiased overflow-x-hidden">
 
-      {/* Compact Nav */}
-      <nav className="sticky top-0 z-[100] w-full bg-white/90 backdrop-blur-xl border-b border-black/5 h-12 flex items-center shadow-sm">
+      {/* Flat Nav */}
+      <nav className="sticky top-0 z-[100] w-full bg-white border-b border-black/10 h-14 flex items-center">
         <div className="max-w-[1200px] mx-auto w-full px-28 flex items-center justify-between">
           <div className="flex items-center space-x-6">
             <div className="flex items-center space-x-2">
@@ -212,18 +219,16 @@ export default function App() {
       </nav>
 
       <main className="max-w-[1000px] mx-auto px-6 py-12 relative z-10 font-sans">
-        <header className="mb-10 text-center md:text-left">
-          <h1 className="text-[28px] md:text-[28px] font-bold tracking-tight text-black leading-tight">Clinical Command.</h1>
-          <p className="text-[16px] md:text-[16px] text-black/60 mt-3 font-medium tracking-tight max-w-[600px] leading-snug">
-            Precision prescribing powered by AURA. Transform complex microbiology into actionable insights.
-          </p>
-        </header>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+        
+        {!result ? (
+          /* Step 1: Input Page */
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start animate-in fade-in duration-700">
           
           <div className="lg:col-span-8 flex flex-col gap-8">
             
-            {/* Microbiology Interface: Compact Upload */}
+            {/* Microbiology Interface: Compact Upload (COMMENTED OUT FOR DEV) */}
+            {/* 
             <section 
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
@@ -262,10 +267,69 @@ export default function App() {
                 </div>
               )}
               <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".pdf,.txt,.png,.jpg,.jpeg" />
+            </section> 
+            */}
+
+            {/* Clinical Report View */}
+            <section className="bg-white border border-black/10 rounded-2xl p-8">
+               <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <h3 className="text-[16px] font-bold text-black tracking-tight uppercase">Current Case Findings</h3>
+                  </div>
+                  {/* <span className="px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-100">Patient 001</span> */}
+               </div>
+               
+               <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div className="space-y-2">
+                        <label className="text-[11px] font-bold text-black/30 uppercase tracking-widest pl-1">Specimen Source</label>
+                        <div className="bg-[#F8F9FA] px-4 py-3 rounded-xl border border-black/5 text-[14px] font-medium text-black">
+                           BLOOD C/S
+                        </div>
+                     </div>
+                     <div className="space-y-2">
+                        <label className="text-[11px] font-bold text-black/30 uppercase tracking-widest pl-1">Primary Finding</label>
+                        <div className="bg-[#F8F9FA] px-4 py-3 rounded-xl border border-black/5 text-[14px] font-medium text-black">
+                           E. coli (Gram-negative)
+                        </div>
+                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                     <label className="text-[11px] font-bold text-black/30 uppercase tracking-widest pl-1">Antibiotic Susceptibilities</label>
+                     <div className="bg-[#F8F9FA] rounded-xl border border-black/5 overflow-hidden">
+                        <table className="w-full text-left text-[13px]">
+                           <thead>
+                              <tr className="border-b border-black/5 bg-black/2">
+                                 <th className="px-4 py-2 font-bold text-black/60">Molecule</th>
+                                 <th className="px-4 py-2 font-bold text-black/60 text-right">Result</th>
+                              </tr>
+                           </thead>
+                           <tbody className="font-medium">
+                              <tr className="border-b border-black/5 last:border-0">
+                                 <td className="px-4 py-2.5">Piperacillin-Tazobactam</td>
+                                 <td className="px-4 py-2.5 text-right text-emerald-600 font-bold">Susceptible</td>
+                              </tr>
+                              <tr className="border-b border-black/5 last:border-0">
+                                 <td className="px-4 py-2.5">Amikacin</td>
+                                 <td className="px-4 py-2.5 text-right text-emerald-600 font-bold">Susceptible</td>
+                              </tr>
+                              <tr>
+                                 <td className="px-4 py-2.5">Gentamicin</td>
+                                 <td className="px-4 py-2.5 text-right text-emerald-600 font-bold">Susceptible</td>
+                              </tr>
+                           </tbody>
+                        </table>
+                     </div>
+                  </div>
+               </div>
             </section>
 
             {/* Clinical Parameters: Compact Grid */}
-            <section className="bg-white border border-black/10 rounded-3xl p-8 shadow-sm">
+            <section className="bg-white border border-black/10 rounded-2xl p-8">
               <div className="flex items-center space-x-4 mb-8">
                 <div className="w-10 h-10 bg-black/5 rounded-xl flex items-center justify-center text-black">
                   <Stethoscope className="w-5 h-5" />
@@ -279,7 +343,7 @@ export default function App() {
                     <label className="text-[12px] font-bold text-black uppercase tracking-widest mb-4 block">Syndrome</label>
                     <div className="relative">
                       <select 
-                        className="w-full bg-black/[0.03] border-none rounded-xl px-4 py-3 text-[14px] font- text-black focus:ring-2 focus:ring-black/5 outline-none appearance-none cursor-pointer"
+                        className="w-full bg-slate-50 border border-black/10 rounded-xl px-4 py-3 text-[14px] text-black focus:border-emerald-500 outline-none appearance-none cursor-pointer"
                         value={formData.patient.syndrome}
                         onChange={(e) => setFormData(p => ({ ...p, patient: { ...p.patient, syndrome: e.target.value }}))}
                       >
@@ -336,14 +400,14 @@ export default function App() {
                         onClick={() => setFormData(p => ({ ...p, patient: { ...p.patient, beta_lactam_allergy: !p.patient.beta_lactam_allergy }}))}
                         className={cn(
                           "w-full flex items-center justify-between px-5 py-4 rounded-xl border transition-all text-[13px] font-semibold uppercase",
-                          formData.patient.beta_lactam_allergy ? "border-red-600 bg-red-50 text-red-600 shadow-sm" : "border-black/5 bg-white text-black"
+                          formData.patient.beta_lactam_allergy ? "border-red-200 bg-red-50 text-red-700" : "border-black/5 bg-white text-black"
                         )}
                       >
                         <div className="flex items-center space-x-3">
                            <ShieldAlert className="w-5 h-5" />
                            <span>Beta-Lactam Warning</span>
                         </div>
-                        {formData.patient.beta_lactam_allergy && <AlertCircle className="w-5 h-5 shadow-sm" />}
+                        {formData.patient.beta_lactam_allergy && <AlertCircle className="w-5 h-5" />}
                       </button>
 
                       <div className="text-[11px] font-bold text-black/30 uppercase tracking-widest mb-2 px-1">Other Contraindications</div>
@@ -362,7 +426,7 @@ export default function App() {
                             }))}
                             className={cn(
                               "px-3 py-1.5 rounded-lg text-[12px] font-semibold uppercase border transition-all",
-                              formData.patient.other_allergies.includes(a) ? "bg-red-600 text-white border-red-600 shadow-sm" : "bg-white text-black border-black/10"
+                              formData.patient.other_allergies.includes(a) ? "bg-red-50 text-red-700 border-red-200" : "bg-white text-black border-black/10"
                             )}
                           >
                             {a}
@@ -377,7 +441,7 @@ export default function App() {
           </div>
 
           <div className="lg:col-span-4 space-y-8">
-            <section className="bg-white border border-black/10 rounded-3xl p-8 shadow-sm">
+            <section className="bg-white border border-black/10 rounded-2xl p-8 text-black">
                <h3 className="text-[11px] font-bold text-black/30 uppercase tracking-widest mb-8">Patient Profile</h3>
                <div className="space-y-10">
                   <div>
@@ -411,38 +475,38 @@ export default function App() {
                   <button 
                     onClick={handleAnalyze} disabled={analyzing}
                     className={cn(
-                      "w-full py-4 rounded-2xl font-bold text-[14px] uppercase tracking-widest transition-all flex items-center justify-center gap-3 mt-6 shadow-xl",
-                      analyzing ? "bg-black/5 text-black/20" : "bg-emerald-600 text-white shadow-emerald-500/30 hover:bg-emerald-700"
+                      "w-full py-4 px-6 rounded-xl font-bold text-[13px] uppercase tracking-widest transition-all flex items-center justify-center gap-3 mt-6 border-2",
+                      analyzing ? "bg-slate-50 text-black/20 border-black/5" : "bg-emerald-600 text-white border-emerald-600"
                     )}
                   >
-                    {analyzing ? <Activity className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
-                    <span>Run Logic Engine</span>
+                    {/* {analyzing ? <Activity className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />} */}
+                    <span>{analyzing?'Analyzing...':'Generate Precision Regimen' }</span>
                   </button>
                </div>
             </section>
 
             {result ? (
-              <section className="bg-black text-white rounded-3xl p-8 shadow-2xl animate-in fade-in slide-in-from-bottom-5 duration-500 relative border border-emerald-500/20">
+              <section className="bg-white border border-emerald-500/20 rounded-2xl p-8 animate-in fade-in duration-500">
                 <div className="flex items-center space-x-4 mb-8">
-                  <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center text-emerald-400">
+                  <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
                     <CheckCircle2 className="w-7 h-7" />
                   </div>
                   <div>
-                    <h3 className="text-[18px] font-bold tracking-tight uppercase">Regimen Plan</h3>
-                    <p className="text-[12px] font-black text-emerald-400 uppercase tracking-widest mt-0.5">Verified</p>
+                    <h3 className="text-[16px] font-bold tracking-tight uppercase text-black">Regimen Plan</h3>
+                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-0.5">Verified</p>
                   </div>
                 </div>
 
                 <div className="space-y-8">
-                  <div className="bg-white/10 p-6 rounded-2xl border border-white/5">
-                    <span className="text-[11px] font-bold text-white/40 uppercase mb-3 block tracking-widest">Primary Molecule</span>
-                    <h4 className="text-[22px] font-bold text-white mb-4 uppercase tracking-tight">{result.recommendation.primary?.drug}</h4>
-                    <div className="flex flex-col gap-3 text-[13px] font-bold">
-                      <div className="flex items-center space-x-3 text-emerald-400">
+                  <div className="bg-slate-50 p-6 rounded-xl border border-black/5">
+                    <span className="text-[10px] font-bold text-black/40 uppercase mb-3 block tracking-widest">Primary Molecule</span>
+                    <h4 className="text-[20px] font-bold text-black mb-4 uppercase tracking-tight">{result.recommendation.primary?.drug}</h4>
+                    <div className="flex flex-col gap-3 text-[12px] font-bold">
+                      <div className="flex items-center space-x-3 text-emerald-600">
                          <Beaker className="w-4 h-4" />
                          <span>{result.recommendation.primary?.dose}</span>
                       </div>
-                      <div className="flex items-center space-x-3 text-white/60">
+                      <div className="flex items-center space-x-3 text-black/50">
                          <Clock className="w-4 h-4" />
                          <span>{result.recommendation.primary?.frequency}</span>
                       </div>
@@ -450,12 +514,12 @@ export default function App() {
                   </div>
 
                   <div className="space-y-4">
-                       <span className="text-[11px] font-bold text-white/40 uppercase block tracking-widest">Rationale</span>
+                       <span className="text-[10px] font-bold text-black/40 uppercase block tracking-widest">Rationale</span>
                        <ul className="space-y-3">
                           {result.recommendation.rationale.slice(0, 3).map((r: string, i: number) => (
-                             <li key={i} className="flex items-start space-x-3 text-[13px] leading-relaxed font-bold">
+                             <li key={i} className="flex items-start space-x-3 text-[12px] leading-relaxed font-bold">
                                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mt-2 shrink-0"></div>
-                                <span className="text-white/90">{r}</span>
+                                <span className="text-black/80">{r}</span>
                              </li>
                           ))}
                        </ul>
@@ -470,9 +534,9 @@ export default function App() {
                 </div>
               </section>
             ) : error ? (
-              <div className="bg-red-600 text-white rounded-3xl p-6 flex items-start space-x-4 animate-in shake shadow-xl shadow-red-200/50">
-                <AlertCircle className="w-6 h-6 shrink-0 mt-0.5 text-white" />
-                <p className="text-[13px] font-bold uppercase tracking-tight leading-snug">{error}</p>
+              <div className="bg-red-50 text-red-700 rounded-2xl p-6 flex items-start space-x-4 border border-red-200">
+                <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-600" />
+                <p className="text-[12px] font-bold uppercase tracking-tight leading-snug">{error}</p>
               </div>
             ) : (
               <div className="bg-white rounded-3xl py-12 px-6 text-center border-2 border-dashed border-black/5">
@@ -482,9 +546,164 @@ export default function App() {
             )}
           </div>
         </div>
-      </main>
+        ) : (
+          /* Step 2: Simple Clinical Result Page */
+          <div className="max-w-[900px] mx-auto animate-in fade-in duration-500 space-y-2">
+            <div className="bg-white rounded-2xl border border-black/10 overflow-hidden">
+             
 
-     
+              {/* Result Content */}
+              <div className="p-10 space-y-6">
+                
+                {/* Primary Recommendation Card */}
+                <div className="bg-emerald-50 border-2 border-emerald-500/20 rounded-2xl p-10 text-emerald-950 relative overflow-hidden">
+                   <div className="relative z-10">
+                      <div className="flex items-center space-x-3 mb-6">
+                        <span className="px-3 py-1 bg-emerald-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest">Recommended</span>
+                        {/* <span className="text-emerald-900/40 text-[10px] font-bold uppercase tracking-widest">{result.recommendation.primary.source}</span> */}
+                      </div>
+                      
+                      <h3 className="text-[40px] md:text-[30px] font-bl ack tracking-tighter leading-none mb-10 uppercase text-emerald-950">
+                        {result.recommendation.primary.drug}
+                      </h3>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-white border border-emerald-200 rounded-xl p-4">
+                           <span className="text-[10px] font-bold text-emerald-900/40 uppercase tracking-widest block mb-1">Dose</span>
+                           <span className="text-[16px] font-bold">{result.recommendation.primary.dose}</span>
+                        </div>
+                        <div className="bg-white border border-emerald-200 rounded-xl p-4">
+                           <span className="text-[10px] font-bold text-emerald-900/40 uppercase tracking-widest block mb-1">Frequency</span>
+                           <span className="text-[16px] font-bold">{result.recommendation.primary.frequency}</span>
+                        </div>
+                        <div className="bg-white border border-emerald-200 rounded-xl p-4">
+                           <span className="text-[10px] font-bold text-emerald-900/40 uppercase tracking-widest block mb-1">Route</span>
+                           <span className="text-[16px] font-bold">{result.recommendation.primary.route}</span>
+                        </div>
+                        <div className="bg-white border border-emerald-200 rounded-xl p-4">
+                           <span className="text-[10px] font-bold text-emerald-900/40 uppercase tracking-widest block mb-1">Duration</span>
+                           <span className="text-[16px] font-bold">{result.recommendation.primary.duration}</span>
+                        </div>
+                      </div>
+
+                      {/* {result.recommendation.primary.notes && (
+                        <div className="mt-8 pt-8 border-t border-emerald-200 flex items-start space-x-3">
+                           <FileText className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                           <p className="text-[14px] font-medium text-emerald-900/70 leading-relaxed italic">
+                              {result.recommendation.primary.notes[0]}
+                           </p>
+                        </div>
+                      )} */}
+                   </div>
+                </div>
+
+                {/* Ranked Options Grid */}
+                <div className="space-y-6">
+                   <div className="flex items-center space-x-3 text-black">
+                      <PieChart className="w-5 h-5" />
+                      <h4 className="text-[16px] font-bold uppercase tracking-tight">Ranked Alternatives</h4>
+                   </div>
+                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {result.ranked_options.map((opt: any, idx: number) => (
+                        <div key={idx} className="bg-white border border-black/10 rounded-xl p-6 space-y-4 flex flex-col justify-between">
+                           <div>
+                              <div className="flex items-center justify-between mb-4">
+                                 <span className="text-[14px] font-bold text-black uppercase truncate pr-2">{opt.drug}</span>
+                                 <span className={cn(
+                                    "px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-tighter",
+                                    opt.sir_summary === 'S' ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"
+                                 )}>{opt.sir_summary}</span>
+                              </div>
+                              <div className="space-y-1.5 mb-6">
+                                 <div className="flex items-center justify-between text-[10px] font-black text-black/30 uppercase tracking-widest">
+                                    <span>Confidence</span>
+                                    <span>{(opt.score * 100).toFixed(0)}%</span>
+                                 </div>
+                                 <div className="h-1.5 w-full bg-black/5 rounded-full overflow-hidden">
+                                     <div 
+                                      className="h-full bg-emerald-500 rounded-full transition-all duration-1000 ease-out"
+                                      style={{ width: `${opt.score * 100}%` }}
+                                     />
+                                 </div>
+                              </div>
+                           </div>
+                           <p className="text-[11px] text-black/50 leading-relaxed italic border-t border-black/5 pt-3">
+                              {opt.why[0]}
+                           </p>
+                        </div>
+                      ))}
+                   </div>
+                </div>
+
+                {/* Detailed Formatted Rationale */}
+                <div className="space-y-6 bg-slate-50 rounded-2xl border border-black/5 p-10">
+                   <div className="flex items-center space-x-3 text-black">
+                      <ClipboardCheck className="w-5 h-5" />
+                      <h4 className="text-[16px] font-bold uppercase tracking-tight">Technical Analysis</h4>
+                   </div>
+                   <div className="space-y-0 text-[15px] leading-[1.7] text-black/80">
+                      {result.recommendation.rationale.map((block: string, i: number) => (
+                        <div key={i} className="mb-6 last:mb-0">
+                           {block.split('\n').map((line, li) => {
+                             // Robust bolding support: **text**
+                             const parts = line.split(/(\*\*.*?\*\*)/g);
+                             
+                             // Detect lists
+                             const isListItem = line.trim().startsWith('-') || line.trim().match(/^\d\./);
+                             
+                             if (line.trim() === "") return <div key={li} className="h-4" />;
+
+                             return (
+                               <p key={li} className={cn(
+                                 "mb-2",
+                                 isListItem ? "pl-6 relative" : ""
+                               )}>
+                                 {isListItem && <span className="absolute left-0 top-0 text-emerald-600 font-bold">•</span>}
+                                 {parts.map((part, pi) => {
+                                   if (part.startsWith('**') && part.endsWith('**')) {
+                                     return <strong key={pi} className="font-bold text-black">{part.slice(2, -2)}</strong>;
+                                   }
+                                   return part;
+                                 })}
+                               </p>
+                             );
+                           })}
+                        </div>
+                      ))}
+                   </div>
+                </div>
+
+                {/* Safety Warning */}
+                {result.recommendation.warnings.length > 0 && (
+                  <div className="bg-red-50 border border-red-100 rounded-[24px] p-8 flex items-start space-x-4">
+                     <AlertCircle className="w-6 h-6 text-red-600 shrink-0" />
+                     <div className="space-y-1">
+                        <span className="text-[11px] font-black text-red-700 uppercase tracking-widest">Clinical Priority Warning</span>
+                        <p className="text-[14px] text-red-600 font-bold leading-relaxed">
+                           {result.recommendation.warnings[0]}
+                        </p>
+                     </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Footer */}
+              <div className="px-10 py-10 bg-slate-50 border-t border-black/10 flex items-center justify-between">
+                 <button 
+                  onClick={() => setResult(null)}
+                  className="px-8 py-4 rounded-xl text-[13px] font-bold text-black/50 hover:text-black transition-all uppercase tracking-widest flex items-center space-x-2 border border-black/5 bg-white"
+                 >
+                    <ChevronRight className="w-4 h-4 rotate-180" />
+                    <span>Back to Inputs</span>
+                 </button>
+                 <div className="flex space-x-3">
+                  
+                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   )
 }
