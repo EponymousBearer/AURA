@@ -93,6 +93,38 @@ export default function App() {
     }
   }
 
+  const performOCR = async (file: File) => {
+    const apiKey = import.meta.env.VITE_OCR_APIKEY
+    if (!apiKey) {
+      console.error("OCR API key missing. Check VITE_OCR_APIKEY in .env")
+      return null
+    }
+
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('apikey', apiKey)
+    formData.append('language', 'eng')
+    formData.append('isOverlayRequired', 'false')
+    formData.append('FileType', file.type.split('/')[1] === 'pdf' ? 'PDF' : 'IMAGE')
+
+    try {
+      const response = await fetch('https://api.ocr.space/parse/image', {
+        method: 'POST',
+        body: formData
+      })
+      const result = await response.json()
+      
+      if (result.OCRExitCode === 1) {
+        return result.ParsedResults.map((res: any) => res.ParsedText).join('\n')
+      } else {
+        throw new Error(result.ErrorMessage || "OCR processing failed")
+      }
+    } catch (err) {
+      console.error("OCR Error:", err)
+      return null
+    }
+  }
+
   const handleAnalyze = async () => {
     if (!file) {
       setError("Please upload a microbiology culture report.")
@@ -103,21 +135,24 @@ export default function App() {
     setResult(null)
 
     try {
-      const reader = new FileReader()
-      const text = await new Promise<string>((resolve, reject) => {
-        reader.onload = (e) => resolve(e.target?.result as string || "")
-        reader.onerror = reject
-        if (file.type === "text/plain" || file.name.endsWith(".txt")) {
+      let text = ""
+      if (file.type === "text/plain" || file.name.endsWith(".txt")) {
+        const reader = new FileReader()
+        text = await new Promise<string>((resolve, reject) => {
+          reader.onload = (e) => resolve(e.target?.result as string || "")
+          reader.onerror = reject
           reader.readAsText(file)
-        } else {
-          // Fallback for demo: send descriptive tag
-          resolve(`[BINARY_DATA:${file.name}] Clinical report extracted from ${file.type}`)
+        })
+      } else {
+        // Perform OCR for images/PDFs
+        text = await performOCR(file) || ""
+        if (!text) {
+          throw new Error("Could not extract text from the file. Please ensure it's a clear document.")
         }
-      })
+      }
 
       const payload = {
-        // report_text: text || `Analysis request for ${file.name}`,
-          report_text: "Specimen Desc. : BLOOD C/S\\nResult :\\n1: E. COLI\\nANTIBIOTIC SUSCEPTIBILITY\\n1   PIPERACILLIN-TAZOBACTAM   S\\n2   AMIKACIN                  S\\n3   GENTAMICIN                S\\n",
+        report_text: text,
         specimen_hint: null,
         patient: formData.patient,
         debug: true
